@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: release-${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+      - run: |
+          echo '${{ steps.create_release.outputs.upload_url }}' > upload_url
+      - uses: actions/upload-artifact@v1
+        with:
+          name: upload_url
+          path: upload_url
+  build:
+    needs: release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - fish
+          - nano
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v1
+        with:
+          name: upload_url
+      - id: read_url
+        run: |
+          echo "::set-output name=upload_url::$(cat upload_url/upload_url)"
+      - id: build
+        run: |
+          cd ${{ matrix.target }}
+          make
+          echo "::set-output name=artifact::$(basename $(find artifacts -name "*.tar.gz"))"
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.read_url.outputs.upload_url }}
+          asset_path: ${{ matrix.target }}/artifacts/${{ steps.build.outputs.artifact }}
+          asset_name: ${{ steps.build.outputs.artifact }}
+          asset_content_type: application/octet-stream
