@@ -1,6 +1,6 @@
 #!/bin/sh -eux
 
-FISH_VERSION=3.0.2
+FISH_VERSION=3.1.0
 
 apk add gcc g++ make cmake musl-dev ncurses-dev ncurses-static
 
