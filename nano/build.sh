@@ -1,7 +1,7 @@
 #!/bin/sh -eux
 
 FILE_VERSION=5.38
-NANO_VERSION=4.8
+NANO_VERSION=4.9.2
 
 apk add gcc make groff linux-headers musl-dev ncurses-dev ncurses-static zlib-dev zlib-static
 
