@@ -1,3 +1,5 @@
+name: build
+
 on:
   push:
     branches:
@@ -15,7 +17,7 @@ jobs:
           tag_name: release-${{ github.run_number }}
           release_name: Release ${{ github.run_number }}
       - run: |
-          echo '${{ steps.create_release.outputs.upload_url }}' > upload_url
+          printf '${{ steps.create_release.outputs.upload_url }}' > upload_url
       - uses: actions/upload-artifact@v2
         with:
           name: upload_url
@@ -37,14 +39,14 @@ jobs:
           name: upload_url
       - id: read_url
         run: |
-          echo "::set-output name=upload_url::$(cat upload_url/upload_url)"
+          printf "::set-output name=%s::%s\n" upload_url $(cat upload_url)
       - run: |
           ./${{ matrix.target }}/build.sh
       - id: find_artifact
         run: |
           ARTIFACT=$(find . -name "${{ matrix.target }}-*.tar.gz")
-          echo "::set-output name=artifact_path::$(realpath $ARTIFACT)"
-          echo "::set-output name=artifact_name::$(basename $ARTIFACT)"
+          printf "::set-output name=%s::%s\n" artifact_path $(realpath $ARTIFACT)
+          printf "::set-output name=%s::%s\n" artifact_name $(basename $ARTIFACT)
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
