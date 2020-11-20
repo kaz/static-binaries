@@ -1,21 +1,23 @@
 #!/bin/sh -eux
 
-FILE_VERSION=5.38
-NANO_VERSION=4.9.3
+FILE_VERSION=5.39
+NANO_VERSION=5.3
+
+ARTIFACTS_DIR=$(realpath $(dirname ${0})/artifacts)
 
 apk add gcc make groff linux-headers musl-dev ncurses-dev ncurses-static zlib-dev zlib-static
 
-cd /
+cd /tmp
 wget http://ftp.astron.com/pub/file/file-${FILE_VERSION}.tar.gz -O - | tar zxvf -
 cd file-${FILE_VERSION}
 ./configure --prefix=/usr CFLAGS="-Ofast" --enable-static
 make -j8 install
 
-cd /
-wget https://www.nano-editor.org/dist/v4/nano-${NANO_VERSION}.tar.gz -O - | tar zxvf -
+cd /tmp
+wget https://www.nano-editor.org/dist/v${NANO_VERSION%%.*}/nano-${NANO_VERSION}.tar.gz -O - | tar zxvf -
 cd nano-${NANO_VERSION}
-./configure --prefix=/build/artifacts/nano-${NANO_VERSION} CFLAGS="-Ofast" LDFLAGS="-static -no-pie -s" LIBS="-lz"
+./configure --prefix=${ARTIFACTS_DIR}/nano-${NANO_VERSION} CFLAGS="-Ofast" LDFLAGS="-static -no-pie -s" LIBS="-lz"
 make -j8 install
 
-cd /build/artifacts
+cd ${ARTIFACTS_DIR}
 tar zcvf nano-${NANO_VERSION}.tar.gz nano-${NANO_VERSION}
