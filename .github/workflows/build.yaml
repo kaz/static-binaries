@@ -16,13 +16,15 @@ jobs:
           release_name: Release ${{ github.run_number }}
       - run: |
           echo '${{ steps.create_release.outputs.upload_url }}' > upload_url
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         with:
           name: upload_url
           path: upload_url
   build:
     needs: release
     runs-on: ubuntu-latest
+    container:
+      image: alpine
     strategy:
       matrix:
         target:
@@ -30,22 +32,24 @@ jobs:
           - nano
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v2
         with:
           name: upload_url
       - id: read_url
         run: |
           echo "::set-output name=upload_url::$(cat upload_url/upload_url)"
-      - id: build
+      - run: |
+          ./${{ matrix.target }}/build.sh
+      - id: find_artifact
         run: |
-          cd ${{ matrix.target }}
-          make
-          echo "::set-output name=artifact::$(basename $(find artifacts -name "*.tar.gz"))"
+          ARTIFACT=$(find . -name "${{ matrix.target }}-*.tar.gz")
+          echo "::set-output name=artifact_path::$(realpath $ARTIFACT)"
+          echo "::set-output name=artifact_name::$(basename $ARTIFACT)"
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.read_url.outputs.upload_url }}
-          asset_path: ${{ matrix.target }}/artifacts/${{ steps.build.outputs.artifact }}
-          asset_name: ${{ steps.build.outputs.artifact }}
-          asset_content_type: application/octet-stream
+          asset_path: ${{ steps.find_artifact.outputs.artifact_path }}
+          asset_name: ${{ steps.find_artifact.outputs.artifact_name }}
+          asset_content_type: application/gzip
