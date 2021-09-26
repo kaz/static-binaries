@@ -1,11 +1,11 @@
 #!/bin/sh -eux
 
-readonly FILE_VERSION NANO_VERSION ARTIFACTS_DIR
-
 FILE_VERSION=5.40
 NANO_VERSION=5.8
 
 ARTIFACTS_DIR="$(realpath ./artifacts)"
+
+readonly FILE_VERSION NANO_VERSION ARTIFACTS_DIR
 
 apk add gcc groff linux-headers make musl-dev \
         ncurses-dev ncurses-static zlib-dev zlib-static

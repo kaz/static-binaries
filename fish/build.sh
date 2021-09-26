@@ -1,10 +1,10 @@
 #!/bin/sh -eux
 
-readonly FISH_VERSION ARTIFACTS_DIR
-
 FISH_VERSION=3.3.1
 
 ARTIFACTS_DIR="$(realpath ./artifacts)"
+
+readonly FISH_VERSION ARTIFACTS_DIR
 
 apk add cmake g++ gcc make musl-dev \
         ncurses-dev ncurses-static
