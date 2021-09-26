@@ -25,6 +25,7 @@ jobs:
   build:
     needs: release
     runs-on: ubuntu-latest
+    if: always()
     container:
       image: alpine
     strategy:
