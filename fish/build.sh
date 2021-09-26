@@ -1,6 +1,5 @@
 #!/bin/sh -eux
 
-# FISH_VERSION=3.1.2
 FISH_VERSION=3.2.2
 
 ARTIFACTS_DIR="$(realpath ./artifacts)"
